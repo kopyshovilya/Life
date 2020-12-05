@@ -415,10 +415,3 @@
 	<SFML/Graphics/Drawable.hpp>
 	<SFML/Window/GlResource.hpp>
 
-1607108174 source:d:\documents\life\life\life.cpp
-	<SFML/Graphics.hpp>
-	<iostream>
-	<vector>
-	<windows.h>
-	<string>
-
