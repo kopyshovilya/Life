@@ -112,6 +112,7 @@ int main()
     cout << "Left-click to specify the starting positions of live cells and click Enter.\n";
     cout << "During the game, you can pause it by clicking on the Space button.\n";
     cout << "To continue the game, click Enter.\n";
+    cout << "For exit press Escape.\n";
     cout << "\n\nSize field: " << sizeX << " x " << sizeY << '\n';
     Sleep(1000);
     RenderWindow window(VideoMode(sizeX * 10, sizeY * 10), "Life!");
@@ -285,6 +286,7 @@ int main()
         if (Keyboard::isKeyPressed(Keyboard::Escape))
             break;
     }
+    Sleep(350);
     cout << "Life lasted: " << generation;
     cout << '\n';
 
@@ -296,7 +298,7 @@ int main()
 
 
 
-
+/////////////////////////////// Grapher ////////////////////////////////////////////////////////////////////
 
 
     RenderWindow windowGraph(VideoMode(sizeX * 10, sizeY * 10), "Grapher");
@@ -307,6 +309,7 @@ int main()
         {
             if (e.type == Event::Closed)
                 windowGraph.close();
+        }
 
             windowGraph.clear(Color::White);
             RectangleShape ox(Vector2f(2, sizeY*10));
@@ -335,9 +338,10 @@ int main()
                 point.setPosition(int(20 + double(i) / double(populat.size()) * (sizeX * 10 - 12)), abs(int(sizeY * 10 - 30 - double(populat[i])/double(maxPopul - minPopul - 10)*(sizeY * 10 - 50))));
                 windowGraph.draw(point);
             }
-
+            if (Keyboard::isKeyPressed(Keyboard::Escape))
+                break;
             windowGraph.display();
-        }
+
     }
     return 0;
 }
