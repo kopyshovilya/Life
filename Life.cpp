@@ -216,7 +216,16 @@ int main()
                         s.setPosition(posCell.first * 10, posCell.second * 10);
                         window.draw(s);
                     }
-
+                    if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Right ))
+                    {
+                        cout << "r\n";
+                        Vector2i pos = Mouse::getPosition(window);
+                        Vector2f mousePos = window.mapPixelToCoords(pos);
+                        pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
+                        field[posCell.second][posCell.first] = 0;
+                        s.setPosition(posCell.first * 10, posCell.second * 10);
+                        window.draw(s);
+                    }
 
                 }
                 time = timePause;
