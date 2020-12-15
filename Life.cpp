@@ -2,6 +2,7 @@
 #include <iostream>
 #include <vector>
 #include <windows.h>
+#include <algorithm>
 #include <string>
 
 #define sizeX 100
@@ -76,10 +77,10 @@ void copyField(int field[sizeY][sizeX], int cpField[sizeY][sizeX])
             cpField[i][j] = field[i][j];
 }
 
-beginField(int field[sizeY][sizeX], vector <pair<int, int>> beginNum)
+void beginField(int field[sizeY][sizeX], vector <pair<int, int>> *beginNum)
 {
-    for(int i = 0; i < beginNum.size(); i++)
-        field[beginNum[i].second][beginNum[i].first] = 1;
+    for(int i = 0; i < (*beginNum).size(); i++)
+        field[(*beginNum)[i].second][(*beginNum)[i].first] = 1;
 }
 
 bool compField(int field1[sizeY][sizeX], int field2[sizeY][sizeX])
@@ -91,18 +92,31 @@ bool compField(int field1[sizeY][sizeX], int field2[sizeY][sizeX])
     return 1;
 }
 
+void fieldToVector(int field[sizeY][sizeX], vector <pair<int, int>>* v)
+{
+    for (int i = 0; i < sizeY; i++)
+        for (int j = 0; j < sizeX; j++)
+            if (field[i][j] == 1)
+                (*v).push_back({j, i});
+}
+
 int main()
 {
     Font font;
     font.loadFromFile("CyrilicOld.ttf");
     vector <pair<int, int>> beginNum;
+    vector <pair<int, int>> posCellField;
     vector <int> populat;
     zeros(field);
     int generation = 0;
-    cout << "Left-click to specify the starting positions of live cells and click enter";
+    cout << "Left-click to specify the starting positions of live cells and click Enter.\n";
+    cout << "During the game, you can pause it by clicking on the Space button.\n";
+    cout << "To continue the game, click Enter.\n";
     cout << "\n\nSize field: " << sizeX << " x " << sizeY << '\n';
     Sleep(1000);
     RenderWindow window(VideoMode(sizeX * 10, sizeY * 10), "Life!");
+
+    //////////////// INPUT ///////////////////////////////////////////////////////////////////////////////////
 
     while (window.isOpen())
     {
@@ -127,6 +141,17 @@ int main()
                     beginNum.push_back(posCell);
                 //Sleep(500);
             }
+        if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Right ))
+            {
+                Vector2i pos = Mouse::getPosition(window);
+                Vector2f mousePos = window.mapPixelToCoords(pos);
+                pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
+                auto poss = find(beginNum.begin(), beginNum.end(), posCell);
+                if(poss != beginNum.end())
+                    beginNum.erase(poss);
+                    //beginNum.push_back(posCell);
+                //Sleep(500);
+            }
         for(int i = 0; i < beginNum.size(); i++)
         {
             s.setPosition(beginNum[i].first * 10, 10 * beginNum[i].second);
@@ -147,9 +172,15 @@ int main()
 
     }
 
-    beginField(field, beginNum);
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+
+    beginField(field, &beginNum);
+    bool f = 1;
 
     cout << "Initial number of cells: " << beginNum.size() << '\n';
+
+    int time = 0;
+    int dt = 10;
 
     while (window.isOpen())
     {
@@ -174,15 +205,21 @@ int main()
                     window.draw(s);
                 }
         }
-        copyField(field, pastField);
-        newGen(field, pastField);
-        if(compField(field, pastField))
-            break;
-        generation++;
+        if(time > timePause)
+        {
+            copyField(field, pastField);
+            newGen(field, pastField);
+            if(compField(field, pastField))
+                break;
+            generation++;
+            time = 0;
+        }
 
         Text textGen("", font, 20);
+        Text textPause("PAUSE", font, 50);
         Text textPop("", font, 20);
         textGen.setColor(Color::Black);
+        textPause.setColor(Color::Red);
         textPop.setColor(Color::Black);
         string strGen = "Generation: ";
         string strPop = "Population: ";
@@ -196,54 +233,55 @@ int main()
         window.draw(textGen);
         window.draw(textPop);
 
-        int time = 0;
-        int dt = 10;
-        while(time < timePause)
+
+
+        posCellField = {};
+        fieldToVector(field, &posCellField);
+        if (Keyboard::isKeyPressed(Keyboard::Space))
+            f = 0;
+        if (Keyboard::isKeyPressed(Keyboard::Enter))
+            f = 1;
+
+        if (f)  time+= dt;
+
+        if (!f)
         {
-            if (Keyboard::isKeyPressed(Keyboard::Space))
-            {
-                Sleep(200);
-                while(!Keyboard::isKeyPressed(Keyboard::Space))
-                {
-                    //cout << "pause\n";
-
-                    if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Left ))
-                    {
-                        Vector2i pos = Mouse::getPosition(window);
-                        Vector2f mousePos = window.mapPixelToCoords(pos);
-                        pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
-                        field[posCell.second][posCell.first] = 1;
-                        s.setPosition(posCell.first * 10, posCell.second * 10);
-                        window.draw(s);
-                    }
-                    if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Right ))
-                    {
-                        Vector2i pos = Mouse::getPosition(window);
-                        Vector2f mousePos = window.mapPixelToCoords(pos);
-                        pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
-                        field[posCell.second][posCell.first] = 0;
-                        s.setPosition(posCell.first * 10, posCell.second * 10);
-                        window.draw(s);
-                    }
-
-                }
-                time = timePause;
-            }
-            if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Left ))
-                    {
-                        Vector2i pos = Mouse::getPosition(window);
-                        Vector2f mousePos = window.mapPixelToCoords(pos);
-                        pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
-                        field[posCell.second][posCell.first] = 1;
-                        //s.setPosition(posCell.first * 10, posCell.second * 10);
-                        //window.draw(s);
-                    }
-            time+= dt;
-            Sleep(dt);
+            textPause.setPosition(sizeX * 10 / 2 - 100, 0);
+            window.draw(textPause);
         }
-        Sleep(100);
 
+        if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Left ))
+        {
+            Vector2i pos = Mouse::getPosition(window);
+            Vector2f mousePos = window.mapPixelToCoords(pos);
+            pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
+            if(find(posCellField.begin(), posCellField.end(), posCell) == posCellField.end())
+                posCellField.push_back(posCell);
+        }
+        if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Right ))
+        {
+            Vector2i pos = Mouse::getPosition(window);
+            Vector2f mousePos = window.mapPixelToCoords(pos);
+            pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
+            auto poss = find(posCellField.begin(), posCellField.end(), posCell);
+            if(poss != posCellField.end())
+                posCellField.erase(poss);
+        }
+
+        for(int i = 0; i < posCellField.size(); i++)
+        {
+            s.setPosition(posCellField[i].first * 10, 10 * posCellField[i].second);
+            window.draw(s);
+        }
+
+        Sleep(dt);
+        zeros(field);
+        beginField(field, &posCellField);
         window.display();
+
+
+
+
         if (Keyboard::isKeyPressed(Keyboard::Escape))
             break;
     }
