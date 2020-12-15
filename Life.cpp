@@ -6,6 +6,7 @@
 
 #define sizeX 100
 #define sizeY 50
+#define timePause 1000 // ms
 
 using namespace std;
 using namespace sf;
@@ -117,14 +118,14 @@ int main()
         }
 
         window.clear(Color::White);
-        if (e.type == Event::MouseButtonPressed)
-            if (e.key.code == Mouse::Left)
+        if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Left ))
             {
                 Vector2i pos = Mouse::getPosition(window);
                 Vector2f mousePos = window.mapPixelToCoords(pos);
                 pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
-                beginNum.push_back(posCell);
-                Sleep(500);
+                if(find(beginNum.begin(), beginNum.end(), posCell) == beginNum.end())
+                    beginNum.push_back(posCell);
+                //Sleep(500);
             }
         for(int i = 0; i < beginNum.size(); i++)
         {
@@ -194,7 +195,45 @@ int main()
         textPop.setPosition(0, 20);
         window.draw(textGen);
         window.draw(textPop);
-        Sleep(1000);
+
+        int time = 0;
+        int dt = 10;
+        while(time < timePause)
+        {
+            if (Keyboard::isKeyPressed(Keyboard::Space))
+            {
+                Sleep(200);
+                while(!Keyboard::isKeyPressed(Keyboard::Space))
+                {
+                    //cout << "pause\n";
+
+                    if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Left ))
+                    {
+                        Vector2i pos = Mouse::getPosition(window);
+                        Vector2f mousePos = window.mapPixelToCoords(pos);
+                        pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
+                        field[posCell.second][posCell.first] = 1;
+                        s.setPosition(posCell.first * 10, posCell.second * 10);
+                        window.draw(s);
+                    }
+
+
+                }
+                time = timePause;
+            }
+            if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Left ))
+                    {
+                        Vector2i pos = Mouse::getPosition(window);
+                        Vector2f mousePos = window.mapPixelToCoords(pos);
+                        pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
+                        field[posCell.second][posCell.first] = 1;
+                        //s.setPosition(posCell.first * 10, posCell.second * 10);
+                        //window.draw(s);
+                    }
+            time+= dt;
+            Sleep(dt);
+        }
+        Sleep(100);
 
         window.display();
         if (Keyboard::isKeyPressed(Keyboard::Escape))
