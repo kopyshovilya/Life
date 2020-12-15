@@ -218,7 +218,6 @@ int main()
                     }
                     if (sf :: Mouse :: isButtonPressed ( sf :: Mouse :: Right ))
                     {
-                        cout << "r\n";
                         Vector2i pos = Mouse::getPosition(window);
                         Vector2f mousePos = window.mapPixelToCoords(pos);
                         pair<int, int> posCell((int(mousePos.x) - (int(mousePos.x) % 10))/10, (int(mousePos.y) - (int(mousePos.y) % 10))/10);
