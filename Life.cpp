@@ -109,7 +109,9 @@ int main()
     vector <int> populat;
     zeros(field);
     int generation = 0;
-    cout << "Left-click to specify the starting positions of live cells and click Enter.\n";
+
+    cout << "Left mouse button-create life in the cell.\nRight mouse button-kill the life in the cage.\n";
+    cout << "Specify the starting positions of the live cells, and press Enter to start the process.\n";
     cout << "During the game, you can pause it by clicking on the Space button.\n";
     cout << "To continue the game, click Enter.\n";
     cout << "For exit press Escape.\n";
